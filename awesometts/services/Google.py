@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 
 
-#import awesometts.config as config
-
 from PyQt4 import QtGui,QtCore
 
 #Supported Languages       

@@ -64,7 +64,11 @@ if subprocess.mswindows:
 
 	def playsapi5TTS(text, voice):
 		text = re.sub("\[sound:.*?\]", "", stripHTML(text.replace("\n", "")))
-		subprocess.Popen([vbs_launcher, sapi5_path, '-voice', voice.encode(sys.getfilesystemencoding()), text.encode(sys.getfilesystemencoding())], startupinfo=util.si, stdin=PIPE, stdout=PIPE, stderr=STDOUT).communicate()
+		param = [vbs_launcher, sapi5_path, '-voice', voice.encode(sys.getfilesystemencoding()), text.encode(sys.getfilesystemencoding())]
+		if config.subprocessing:
+			subprocess.Popen(param, startupinfo=util.si, stdin=PIPE, stdout=PIPE, stderr=STDOUT)
+		else:
+			subprocess.Popen(param, startupinfo=util.si, stdin=PIPE, stdout=PIPE, stderr=STDOUT).communicate()
 
 	def playfromtagsapi5TTS(fromtag):
 		print fromtag

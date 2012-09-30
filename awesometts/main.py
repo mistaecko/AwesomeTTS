@@ -5,7 +5,7 @@
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
 #
 #   AwesomeTTS plugin for Anki 2.0
-version = '1.0 Alpha 4'
+version = '1.0 Alpha 5'
 #
 #
 #   To use the on the fly function, use the [TTS] or [ATTS] tag, you can still use the [GTTS] tag
@@ -38,12 +38,10 @@ version = '1.0 Alpha 4'
 #   Any problems, comments, please email me: arthur@life.net.br 
 #
 #
-#  Edited on 2012-09-07
+#  Edited on 2012-09-12
 #  
 ########################### Settings #######################################
 from PyQt4.QtCore import *
-TTS_read_field = {}
-TTS_tags_only, TTS_if_no_tag_read_whole = [1,2]
 
 
 import awesometts.config as config
@@ -89,7 +87,6 @@ for i in range(len(modulesfiles)):
 print TTS_service
 
 
-language_generator = config.TTS_language
 file_max_length = 255 # Max filename length for Unix
 
 # Prepend http proxy if one is being used.  Scans the environment for
@@ -135,20 +132,6 @@ def getTTSFromText(text):
 	return tospeak
 
 
-###########  TTS_read to recite the tts on-the-fly
-
-def TTS_read(text, language=config.TTS_language):
-	text = re.sub("\[sound:.*?\]", "", stripHTML(text.replace("\n", "")).encode('utf-8'))
-	address = TTS_ADDRESS+'?tl='+language+'&q='+ quote_plus(text)
-	if subprocess.mswindows:
-		param = ['mplayer.exe', '-ao', 'win32', '-slave', '-user-agent', "'Mozilla/5.0'", address]
-	else:
-		param = ['mplayer', '-slave', '-user-agent', "'Mozilla/5.0'", address]
-	if config.subprocessing:
-		subprocess.Popen(param, startupinfo=si, stdin=PIPE, stdout=PIPE, stderr=STDOUT)
-	else:
-		subprocess.Popen(param, startupinfo=si, stdin=PIPE, stdout=PIPE, stderr=STDOUT).communicate()
-
 
 
 ###################  TTS_record to generate MP3 files
@@ -172,7 +155,6 @@ def getService_byName(name):
 
 
 def GTTS_Factedit_button(self):
-	global language_generator
 	d = QDialog()
 	form = forms.filegenerator.Ui_Dialog()
 	form.setupUi(d)
@@ -225,37 +207,17 @@ def newKeyHandler(self, evt):
 	pkey = evt.key()
 	if (self.state == 'answer' or self.state == 'question'):
 		if (pkey == config.TTS_KEY_Q):
-			playTTSFromText(self.card.q())  #read the GTTS tags
-		elif (pkey == config.TTS_KEY_Q_ALL):
-			if re.findall("\[(G)TTS:(.*?)\]|\[A?TTS:(.*?):(.*?)\]", self.card.q(), re.M|re.I):
-				playTTSFromText(self.card.q()) #read the GTTS tags
-			else:
-				TTS_read(self.card.q(),config.TTS_language) #read the the whole field
+			playTTSFromText(self.card.q())  #read the TTS tags
 		elif (self.state=='answer' and pkey == config.TTS_KEY_A):
-			playTTSFromText(self.card.a()) #read the GTTS tags
-		elif (self.state=='answer' and pkey == config.TTS_KEY_A_ALL):
-			if re.findall("\[(G)TTS:(.*?)\]|\[A?TTS:(.*?):(.*?)\]", self.card.a(), re.M|re.I):
-				playTTSFromText(self.card.a()) #read the GTTS tags
-			else:
-				TTS_read(self.card.a(),config.TTS_language)  #read the the whole field
-		else:
-			for key in TTS_read_field:
-				if TTS_read_field[key] == pkey:
-					TTS_read(self.card.note()[key],TTS_language)
-					break
+			playTTSFromText(self.card.a()) #read the TTS tags
 	evt.accept()
 
 
 
 def GTTSautoread(toread, automatic):
 	if not sound.hasSound(toread):
-		if automatic == TTS_tags_only:
+		if automatic:
 			playTTSFromText(toread)
-		if automatic == TTS_if_no_tag_read_whole:
-			if re.findall("\[(G)TTS:(.*?)\]|\[A?TTS:(.*?):(.*?)\]", toread, re.M|re.I):
-				playTTSFromText(toread)
-			else:
-				TTS_read(toread,config.TTS_language)
 
 def GTTS_OnQuestion(self):
 	GTTSautoread(self.card.q(), config.automaticQuestions)
