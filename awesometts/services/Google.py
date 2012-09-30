@@ -57,7 +57,6 @@ import awesometts.config as config
 import awesometts.util as util
 from subprocess import Popen, PIPE, STDOUT
 
-
 def playGoogleTTS(text, language):
 	text = re.sub("\[sound:.*?\]", "", stripHTML(text.replace("\n", "")).encode('utf-8'))
 	address = TTS_ADDRESS+'?tl='+language+'&q='+ quote_plus(text)

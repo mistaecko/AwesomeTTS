@@ -35,19 +35,20 @@
 
 
 from PyQt4 import QtGui,QtCore
-import os, re, subprocess
+import os, re, subprocess, sys
 from anki.utils import stripHTML
 from urllib import quote_plus
 import awesometts.config as config
 import awesometts.util as util
 from subprocess import Popen, PIPE, STDOUT
 
+
 if subprocess.mswindows:
 	vbs_launcher = os.path.join(os.environ['SYSTEMROOT'], "syswow64", "cscript.exe")
 	if not os.path.exists(vbs_launcher) :
 		vbs_launcher = os.path.join(os.environ['SYSTEMROOT'], "system32", "cscript.exe")
 	sapi5_path = os.path.join(os.path.dirname(__file__),"sapi5.vbs")
-
+	
 
 	exec_command = subprocess.Popen([vbs_launcher, sapi5_path, '-vl'], startupinfo=util.si, stdout=subprocess.PIPE)
 	voicelist = exec_command.stdout.read().split('\n')
@@ -62,8 +63,8 @@ if subprocess.mswindows:
 		voicelist.pop(0)
 
 	def playsapi5TTS(text, voice):
-		text = re.sub("\[sound:.*?\]", "", stripHTML(text.replace("\n", "")).encode('utf-8'))
-		subprocess.Popen([vbs_launcher, sapi5_path, '-voice', voice, text], startupinfo=util.si, stdin=PIPE, stdout=PIPE, stderr=STDOUT).communicate()
+		text = re.sub("\[sound:.*?\]", "", stripHTML(text.replace("\n", "")))
+		subprocess.Popen([vbs_launcher, sapi5_path, '-voice', voice.encode(sys.getfilesystemencoding()), text.encode(sys.getfilesystemencoding())], startupinfo=util.si, stdin=PIPE, stdout=PIPE, stderr=STDOUT).communicate()
 
 	def playfromtagsapi5TTS(fromtag):
 		print fromtag
@@ -72,13 +73,13 @@ if subprocess.mswindows:
 			playsapi5TTS(match.group(2), match.group(1))
 
 	def recordsapi5TTS(text, voice):
-		text = re.sub("\[sound:.*?\]", "", stripHTML(text.replace("\n", "")).encode('utf-8'))
-		filename_wav = util.generateFileName(text, 'sapi5', 'iso-8859-1', '.wav')
-		filename_mp3 = util.generateFileName(text, 'sapi5', 'iso-8859-1', '.mp3')
-		subprocess.Popen([vbs_launcher, sapi5_path, '-o', filename_wav, '-voice', voice, text], startupinfo=util.si, stdin=PIPE, stdout=PIPE, stderr=STDOUT).wait()
+		text = re.sub("\[sound:.*?\]", "", stripHTML(text.replace("\n", "")))
+		filename_wav = util.generateFileName(text.encode('utf-8'), 'sapi5', 'iso-8859-1', '.wav').decode('utf-8').encode(sys.getfilesystemencoding())
+		filename_mp3 = util.generateFileName(text.encode('utf-8'), 'sapi5', 'iso-8859-1', '.mp3').decode('utf-8').encode(sys.getfilesystemencoding())
+		subprocess.Popen([vbs_launcher, sapi5_path, '-o', filename_wav, '-voice', voice.encode(sys.getfilesystemencoding()), text.encode(sys.getfilesystemencoding())], startupinfo=util.si, stdin=PIPE, stdout=PIPE, stderr=STDOUT).wait()
 		subprocess.Popen(['lame.exe', '--quiet', filename_wav, filename_mp3], startupinfo=util.si, stdin=PIPE, stdout=PIPE, stderr=STDOUT).wait()
 		os.unlink(filename_wav)
-		return filename_mp3.decode('utf-8')
+		return filename_mp3.decode(sys.getfilesystemencoding())
 
 	def filegenerator_layout(form):
 		verticalLayout = QtGui.QVBoxLayout()
