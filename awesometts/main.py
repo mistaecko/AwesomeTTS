@@ -5,7 +5,7 @@
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
 #
 #   AwesomeTTS plugin for Anki 2.0
-version = '1.0 Alpha 1'
+version = '1.0 Alpha 2'
 #
 #
 #   To use the on the fly function, use the [TTS] or [ATTS] tag, you can still use the [GTTS] tag
@@ -38,7 +38,7 @@ version = '1.0 Alpha 1'
 #   Any problems, comments, please email me: arthur@life.net.br 
 #
 #
-#  Edited on 2012-06-06
+#  Edited on 2012-09-03
 #  
 ########################### Settings #######################################
 from PyQt4.QtCore import *
@@ -48,7 +48,7 @@ TTS_tags_only, TTS_if_no_tag_read_whole = [1,2]
 
 import awesometts.config as config
 
-import os, subprocess, re, sys, urllib, glob,imp
+import os, subprocess, re, sys, urllib, imp
 from aqt import mw, utils
 from anki import sound
 from anki.sound import playFromText
@@ -68,10 +68,23 @@ import awesometts.services
 
 
 modules = {}
-for path in glob.glob(os.path.dirname(__file__)+"/services/[!_]*.py"):
-	name, ext = os.path.splitext(os.path.basename(path))
-	modules[name] = imp.load_source(name, path)
-	TTS_service.update(modules[name].TTS_service)
+#modulespath = os.path.dirname(__file__)+"/services/"
+modulespath = os.path.dirname(__file__)+"/services/"
+modulesfiles = os.listdir(modulespath)
+for i in range(len(modulesfiles)):
+	name = modulesfiles[i].split('.')
+	if len(name) > 1:
+		if name[1] == 'py' and name[0] != '__init__':
+			modules[name[0]] = imp.load_source(name[0], modulespath+name[0]+'.py')
+			if hasattr(modules[name[0]], 'TTS_service'):
+				TTS_service.update(modules[name[0]].TTS_service)
+			else:
+				del modules[name[0]]
+		
+#for path in glob.glob(os.path.dirname(__file__)+"/services/[!_]*.py"):
+#	name, ext = os.path.splitext(os.path.basename(path))
+#	modules[name] = imp.load_source(name, path)
+#	TTS_service.update(modules[name].TTS_service)
 
 
 print TTS_service
@@ -92,19 +105,7 @@ if len(proxies)>0 and "http" in proxies:
 
 
 
-# mplayer for MS Windows
-if subprocess.mswindows:
-	file_max_length = 100 #guess of a filename max length for Windows (filename +path = 255)
-	dir = os.path.dirname(os.path.abspath(sys.argv[0]))
-	os.environ['PATH'] += ";" + dir
-	si = subprocess.STARTUPINFO()
-	try:
-		si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-	except:
-		# python2.7+
-		si.dwFlags |= subprocess._subprocess.STARTF_USESHOWWINDOW
-else:
-	si = None #for plataforms other than MS Windows
+
 
 
 ######## utils

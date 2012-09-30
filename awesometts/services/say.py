@@ -60,7 +60,7 @@ def recordOSXsayTTS(text, voice):
 	subprocess.Popen(['say', '-v', voice, '-o', filename_aiff, text], stdin=PIPE, stdout=PIPE, stderr=STDOUT).wait()
 	subprocess.Popen(['lame', '--quiet', filename_aiff, filename_mp3], stdin=PIPE, stdout=PIPE, stderr=STDOUT).wait()
 	subprocess.Popen(['rm', filename_aiff], stdin=PIPE, stdout=PIPE, stderr=STDOUT).wait()
-	return filename.decode('utf-8')
+	return filename_mp3.decode('utf-8')
 
 def filegenerator_layout(form):
 	verticalLayout = QtGui.QVBoxLayout()
