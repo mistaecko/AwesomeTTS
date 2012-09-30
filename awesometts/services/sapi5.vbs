@@ -1,9 +1,4 @@
-'    Based on Peter Bennett's code
-'
-'    Code eddited by Arthur Helfstein Fragoso for the Plugin AwesomeTTS for Anki
-'
-'    GNU General Public License
-'    <http://www.gnu.org/licenses/>.
+
 
 doWaveFile = False
 doMultWaveFiles = False

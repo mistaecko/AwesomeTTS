@@ -98,8 +98,9 @@ if subprocess.mswindows:
 		return playsapi5TTS(unicode(form.texttoTTS.toPlainText()), voicelist[form.comboBoxsapi5.currentIndex()])
 
 	TTS_service = {'sapi5' : {
-	'name': 'SAPI5',
+	'name': 'SAPI 5',
 	'play' : playsapi5TTS,
+        'playfromtag' : playfromtagsapi5TTS,
 	'record' : recordsapi5TTS,
 	'filegenerator_layout': filegenerator_layout,
 	'filegenerator_preview': filegenerator_preview,

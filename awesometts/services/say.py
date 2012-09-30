@@ -82,6 +82,7 @@ def filegenerator_preview(form):
 TTS_service = {'say' : {
 'name': 'OSX Say',
 'play' : playOSXsayTTS,
+'playfromtag' : playfromtagOSXsayTTS,
 'record' : recordOSXsayTTS,
 'filegenerator_layout': filegenerator_layout,
 'filegenerator_preview': filegenerator_preview,

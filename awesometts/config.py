@@ -51,7 +51,7 @@ quote_mp3 = True	# spC3A9cial.mp3 E381AFE38184.mp3 E4BDA0E5A5BD.mp3
 
 
 #subprocessing is enabled by default
-# on MS Windows XP or older, there is a bug of cutting the ending of a speech occasionally, so you may want to disable it.
+# on MS Windows XP or older or on Mac OSX, there is a bug of cutting the ending of a speech occasionally, so you may want to disable it.
 #if it's disable(false), Anki will be frozen while GoogleTTS recites the speech. 
 #subprocessing = False
 subprocessing = True
