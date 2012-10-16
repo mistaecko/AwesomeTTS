@@ -1,38 +1,4 @@
-# -*- coding: utf-8 -*-
-
-'''voicelist = [
-"--Female--",
-"Agnes", 
-"Kathy",
-"Princess",
-"Vicki",
-"Victoria",
-"Voices",
-
-"",
-"--Male--",
-"Bruce",
-"Fred",
-"Junior",
-"Ralph",
-
-"",
-"--Novelty--",
-"Albert",
-"Bad News", 
-"Bahh",
-"Bells",
-"Boing",
-"Bubbles",
-"Cellos",
-"Deranged",
-"Good News",
-"Hysterical",
-"Pipe Organ",
-"Trinoids",
-"Whisper",
-"Zarvox"] '''
-
+﻿# -*- coding: utf-8 -*-
 
 from PyQt4 import QtGui,QtCore
 import os, re, subprocess, sys
@@ -61,10 +27,10 @@ if subprocess.mswindows:
 			break
 	for key in range(lasttoremove+1):
 		voicelist.pop(0)
-
+		
 	def playsapi5TTS(text, voice):
 		text = re.sub("\[sound:.*?\]", "", stripHTML(text.replace("\n", "")))
-		param = [vbs_launcher, sapi5_path, '-voice', voice.encode(sys.getfilesystemencoding()), text.encode(sys.getfilesystemencoding())]
+		param = [vbs_launcher, sapi5_path,'-hex', '-voice', voice.encode(sys.getfilesystemencoding()), util.dumpUnicodeStr(text)]
 		if config.subprocessing:
 			subprocess.Popen(param, startupinfo=util.si, stdin=PIPE, stdout=PIPE, stderr=STDOUT)
 		else:
@@ -80,7 +46,7 @@ if subprocess.mswindows:
 		text = re.sub("\[sound:.*?\]", "", stripHTML(text.replace("\n", "")))
 		filename_wav = util.generateFileName(text.encode('utf-8'), 'sapi5', 'iso-8859-1', '.wav').decode('utf-8').encode(sys.getfilesystemencoding())
 		filename_mp3 = util.generateFileName(text.encode('utf-8'), 'sapi5', 'iso-8859-1', '.mp3').decode('utf-8').encode(sys.getfilesystemencoding())
-		subprocess.Popen([vbs_launcher, sapi5_path, '-o', filename_wav, '-voice', voice.encode(sys.getfilesystemencoding()), text.encode(sys.getfilesystemencoding())], startupinfo=util.si, stdin=PIPE, stdout=PIPE, stderr=STDOUT).wait()
+		subprocess.Popen([vbs_launcher, sapi5_path, '-o', filename_wav, '-voice', voice.encode(sys.getfilesystemencoding()), '-hex', util.dumpUnicodeStr(text)], startupinfo=util.si, stdin=PIPE, stdout=PIPE, stderr=STDOUT).wait()
 		subprocess.Popen(['lame.exe', '--quiet', filename_wav, filename_mp3], startupinfo=util.si, stdin=PIPE, stdout=PIPE, stderr=STDOUT).wait()
 		os.unlink(filename_wav)
 		return filename_mp3.decode(sys.getfilesystemencoding())
@@ -105,7 +71,7 @@ if subprocess.mswindows:
 	TTS_service = {'sapi5' : {
 	'name': 'SAPI 5',
 	'play' : playsapi5TTS,
-        'playfromtag' : playfromtagsapi5TTS,
+	'playfromtag' : playfromtagsapi5TTS,
 	'record' : recordsapi5TTS,
 	'filegenerator_layout': filegenerator_layout,
 	'filegenerator_preview': filegenerator_preview,

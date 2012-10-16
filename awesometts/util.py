@@ -33,3 +33,6 @@ if subprocess.mswindows:
 		si.dwFlags |= subprocess._subprocess.STARTF_USESHOWWINDOW
 else:
 	si = None #for plataforms other than MS Windows
+	
+def dumpUnicodeStr(src):
+	return ''.join(["%04X" % ord(x) for x in src])

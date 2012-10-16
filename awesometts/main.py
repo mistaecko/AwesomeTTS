@@ -5,7 +5,7 @@
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
 #
 #   AwesomeTTS plugin for Anki 2.0
-version = '1.0 Alpha 5'
+version = '1.0 Beta 1'
 #
 #
 #   To use the on the fly function, use the [TTS] or [ATTS] tag, you can still use the [GTTS] tag
@@ -38,7 +38,7 @@ version = '1.0 Alpha 5'
 #   Any problems, comments, please email me: arthur@life.net.br 
 #
 #
-#  Edited on 2012-09-12
+#  Edited on 2012-10-06
 #  
 ########################### Settings #######################################
 from PyQt4.QtCore import *
