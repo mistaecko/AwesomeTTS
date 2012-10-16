@@ -30,7 +30,7 @@ if subprocess.mswindows:
 		
 	def playsapi5TTS(text, voice):
 		text = re.sub("\[sound:.*?\]", "", stripHTML(text.replace("\n", "")))
-		param = [vbs_launcher, sapi5_path,'-hex', '-voice', voice.encode(sys.getfilesystemencoding()), util.dumpUnicodeStr(text)]
+		param = [vbs_launcher, sapi5_path,'-hex', '-voice', util.dumpUnicodeStr(voice), util.dumpUnicodeStr(text)]
 		if config.subprocessing:
 			subprocess.Popen(param, startupinfo=util.si, stdin=PIPE, stdout=PIPE, stderr=STDOUT)
 		else:
@@ -46,7 +46,7 @@ if subprocess.mswindows:
 		text = re.sub("\[sound:.*?\]", "", stripHTML(text.replace("\n", "")))
 		filename_wav = util.generateFileName(text.encode('utf-8'), 'sapi5', 'iso-8859-1', '.wav').decode('utf-8').encode(sys.getfilesystemencoding())
 		filename_mp3 = util.generateFileName(text.encode('utf-8'), 'sapi5', 'iso-8859-1', '.mp3').decode('utf-8').encode(sys.getfilesystemencoding())
-		subprocess.Popen([vbs_launcher, sapi5_path, '-o', filename_wav, '-voice', voice.encode(sys.getfilesystemencoding()), '-hex', util.dumpUnicodeStr(text)], startupinfo=util.si, stdin=PIPE, stdout=PIPE, stderr=STDOUT).wait()
+		subprocess.Popen([vbs_launcher, sapi5_path, '-hex', '-o', filename_wav, '-voice', util.dumpUnicodeStr(voice), util.dumpUnicodeStr(text)], startupinfo=util.si, stdin=PIPE, stdout=PIPE, stderr=STDOUT).wait()
 		subprocess.Popen(['lame.exe', '--quiet', filename_wav, filename_mp3], startupinfo=util.si, stdin=PIPE, stdout=PIPE, stderr=STDOUT).wait()
 		os.unlink(filename_wav)
 		return filename_mp3.decode(sys.getfilesystemencoding())
