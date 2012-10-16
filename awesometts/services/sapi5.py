@@ -61,6 +61,9 @@ if subprocess.mswindows:
 		verticalLayout.addWidget(textEditlabel)
 		verticalLayout.addWidget(form.comboBoxsapi5)
 		return verticalLayout
+	
+	def recordsapi5TTS_form(form, text):
+		return recordsapi5TTS(text, voicelist[form.comboBoxsapi5.currentIndex()])
 
 	def filegenerator_run(form):
 		return recordsapi5TTS(unicode(form.texttoTTS.toPlainText()), voicelist[form.comboBoxsapi5.currentIndex()])
@@ -72,7 +75,7 @@ if subprocess.mswindows:
 	'name': 'SAPI 5',
 	'play' : playsapi5TTS,
 	'playfromtag' : playfromtagsapi5TTS,
-	'record' : recordsapi5TTS,
+	'record' : recordsapi5TTS_form,
 	'filegenerator_layout': filegenerator_layout,
 	'filegenerator_preview': filegenerator_preview,
 	'filegenerator_run': filegenerator_run}}

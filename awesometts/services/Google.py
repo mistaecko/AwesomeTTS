@@ -77,8 +77,8 @@ def playfromtagGoogleTTS(fromtag):
 		match = re.match("(.*?):(.*)", item, re.M|re.I)
 		playGoogleTTS(match.group(2), match.group(1))
 
-def recordGoogleTTS(speaklist, param):
-	print speaklist, param
+def recordGoogleTTS(form, text):
+	return TTS_record_old(text, slanguages[form.comboBoxGoogle.currentIndex()][0])
 
 def get_language_id(language_code):
 	x = 0

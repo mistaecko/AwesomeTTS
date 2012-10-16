@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 from PyQt4.QtCore import *
-print "config loaded"
 
 # Key to get the [TTS::] tags in the Question field pronounced
 TTS_KEY_Q=Qt.Key_F3

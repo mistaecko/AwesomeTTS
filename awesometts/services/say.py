@@ -73,6 +73,9 @@ def filegenerator_layout(form):
 	verticalLayout.addWidget(form.comboBoxSay)
 	return verticalLayout
 
+def recordOSXsayTTS_form(form, text):
+	return recordOSXsayTTS(text, voicelist[form.comboBoxSay.currentIndex()])
+
 def filegenerator_run(form):
 	return recordOSXsayTTS(unicode(form.texttoTTS.toPlainText()), voicelist[form.comboBoxSay.currentIndex()])
 
@@ -83,7 +86,7 @@ TTS_service = {'say' : {
 'name': 'OSX Say',
 'play' : playOSXsayTTS,
 'playfromtag' : playfromtagOSXsayTTS,
-'record' : recordOSXsayTTS,
+'record' : recordOSXsayTTS_form,
 'filegenerator_layout': filegenerator_layout,
 'filegenerator_preview': filegenerator_preview,
 'filegenerator_run': filegenerator_run}}

@@ -104,6 +104,9 @@ def filegenerator_layout(form):
 	verticalLayout.addWidget(form.comboBoxEspeak)
 	return verticalLayout
 
+def recordEspeakTTS_form(form, text):
+	return recordEspeakTTS(text, slanguages[form.comboBoxEspeak.currentIndex()][0])
+
 def filegenerator_run(form):
 	return recordEspeakTTS(unicode(form.texttoTTS.toPlainText()), slanguages[form.comboBoxEspeak.currentIndex()][0])
 
@@ -115,7 +118,7 @@ TTS_service = {'espeak' : {
 'name': 'Espeak',
 'play' : playEspeakTTS,
 'playfromtag' : playfromtagEspeakTTS,
-'record' : recordEspeakTTS,
+'record' : recordEspeakTTS_form,
 'filegenerator_layout': filegenerator_layout,
 'filegenerator_preview': filegenerator_preview,
 'filegenerator_run': filegenerator_run}}

@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 # Author:  Arthur Helfstein Fragoso
-# Email: arthur@life.net.br
+# Email: arthur[at]life.net.br
 #
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
 #
 #   AwesomeTTS plugin for Anki 2.0
-version = '1.0 Beta 2'
+version = '1.0 Beta 3'
 #
 #
 #   To use the on the fly function, use the [TTS] or [ATTS] tag, you can still use the [GTTS] tag
@@ -35,10 +35,10 @@ version = '1.0 Beta 2'
 #
 # other functions will be added later.
 #
-#   Any problems, comments, please email me: arthur@life.net.br 
+#   Any problems, comments, please email me: arthur[at]life.net.br 
 #
 #
-#  Edited on 2012-10-06
+#  Edited on 2012-10-16
 #  
 ########################### Settings #######################################
 from PyQt4.QtCore import *
@@ -83,8 +83,6 @@ for i in range(len(modulesfiles)):
 #	modules[name] = imp.load_source(name, path)
 #	TTS_service.update(modules[name].TTS_service)
 
-
-print TTS_service
 
 
 file_max_length = 255 # Max filename length for Unix
@@ -141,8 +139,6 @@ def TTS_record(text, service, param=None):
 
 
 
-
-
 ############################ MP3 File Generator
 
 def filegenerator_onCBoxChange(selected, form, serv_list):
@@ -154,7 +150,7 @@ def getService_byName(name):
 			return service
 
 
-def GTTS_Factedit_button(self):
+def ATTS_Factedit_button(self):
 	d = QDialog()
 	form = forms.filegenerator.Ui_Dialog()
 	form.setupUi(d)
@@ -176,15 +172,14 @@ def GTTS_Factedit_button(self):
 		srv = getService_byName(serv_list[form.comboBoxService.currentIndex()])
 		TTS_service[srv]['filegenerator_run'](form)
 		filename = TTS_service[srv]['filegenerator_run'](form)
-		print filename
 		self.addMedia(filename)
 
-def GTTS_Fact_edit_setupFields(self):
+def ATTS_Fact_edit_setupFields(self):
 	AwesomeTTS = QPushButton(self.widget)
 	AwesomeTTS.setFixedHeight(20)
 	AwesomeTTS.setFixedWidth(20)
 	AwesomeTTS.setCheckable(True)
-	AwesomeTTS.connect(AwesomeTTS, SIGNAL("clicked()"), lambda self=self: GTTS_Factedit_button(self))
+	AwesomeTTS.connect(AwesomeTTS, SIGNAL("clicked()"), lambda self=self: ATTS_Factedit_button(self))
 	AwesomeTTS.setIcon(QIcon(":/icons/speaker.png"))
 	AwesomeTTS.setToolTip(_("AwesomeTTS :: MP3 File Generator"))
 	AwesomeTTS.setShortcut(_("Ctrl+g"))
@@ -194,11 +189,132 @@ def GTTS_Fact_edit_setupFields(self):
 	AwesomeTTS.setStyle(self.plastiqueStyle)
 
 
-addHook("setupEditorButtons", GTTS_Fact_edit_setupFields)
+addHook("setupEditorButtons", ATTS_Fact_edit_setupFields)
 
 
+############################ MP3 Mass Generator
+
+srcField = -1
+dstField = -1
 
 
+#take a break, so we don't fall in Google's blacklist. Code contributed by Dusan Arsenijevic
+def take_a_break(ndone, ntotal):      
+	t = 500;
+	while True:
+		mw.progress.update(label="Generated %s of %s, \n sleeping for %s seconds...." % (ndone+1, ntotal, t))
+		time.sleep(1)
+		t = t-1
+		if t==0: break
+
+def generate_audio_files(factIds, frm, service, srcField_name, dstField_name):
+	returnval = {'fieldname_error': 0}
+	nelements = len(factIds)
+	batch = 900
+	
+	for c, id in enumerate(factIds):
+		if service == 'g' and (c+1)%batch == 0: # GoogleTTS has to take a break once in a while
+			take_a_break(c, nelements)
+		note = mw.col.getNote(id)
+		
+		if not (srcField_name in note.keys() and dstField_name in note.keys()):
+			returnval['fieldname_error'] += 1
+			continue
+		
+		mw.progress.update(label="Generating MP3 files...\n%s of %s\n%s" % (c+1, nelements,note[srcField_name]))
+		
+		filename = TTS_service[service]['record'](frm, note[srcField_name])
+		
+		if frm.radioOverwrite.isChecked():
+			if frm.checkBoxSndTag.isChecked():
+				note[dstField_name] = '[sound:'+ filename +']'
+			else:
+				note[dstField_name] = filename
+		else:
+			note[dstField_name] += ' [sound:'+ filename +']'
+		note.flush()
+		
+	return returnval
+
+
+def onGenerate(self):
+	global TTS_language, dstField, srcField
+	sf = self.selectedNotes()
+	if not sf:
+		utils.showInfo("Select the notes and then use the MP3 Mass Generator")
+		return
+	import anki.find
+	fields = sorted(anki.find.fieldNames(self.col, downcase=False))
+	d = QDialog(self)
+	frm = forms.massgenerator.Ui_Dialog()
+	frm.setupUi(d)
+	d.setWindowModality(Qt.WindowModal)
+	
+	frm.label_version.setText("Version "+ version)
+	
+	fieldlist = []
+	for f in mw.col.models.all():
+		for a in f['flds']:
+			fieldlist.append(a['name'])
+	
+	frm.sourceFieldComboBox.addItems(fieldlist)
+	frm.sourceFieldComboBox.setCurrentIndex(srcField)
+
+	frm.destinationFieldComboBox.addItems(fieldlist)
+	frm.destinationFieldComboBox.setCurrentIndex(dstField)
+
+	#service list start
+	serv_list = [TTS_service[service]['name'] for service in TTS_service]
+	frm.comboBoxService.addItems(serv_list)
+	
+	for service in TTS_service:
+		tostack = QWidget(frm.stackedWidget)
+		tostack.setLayout(TTS_service[service]['filegenerator_layout'](frm))
+		frm.stackedWidget.addWidget(tostack)
+	
+	QtCore.QObject.connect(frm.comboBoxService, QtCore.SIGNAL("currentIndexChanged(QString)"), lambda selected,frm=frm,serv_list=serv_list: filegenerator_onCBoxChange(selected, frm, serv_list))
+	#service list end
+	
+	
+	if not d.exec_():
+		return
+
+	srcField = frm.sourceFieldComboBox.currentIndex()
+	dstField = frm.destinationFieldComboBox.currentIndex()
+	#languageField = frm.languageComboBox.currentIndex()
+
+	if srcField == -1 or dstField == -1 :
+		return
+	
+	service = getService_byName(serv_list[frm.comboBoxService.currentIndex()])
+
+	self.mw.checkpoint(_("AwesomeTTS MP3 Mass Generator"))
+	self.mw.progress.start(immediate=True, label="Generating MP3 files...")
+	
+	self.model.beginReset()
+
+	result = generate_audio_files(sf, frm, service, fieldlist[srcField], fieldlist[dstField])
+
+	self.model.endReset()
+	self.mw.progress.finish()
+	nupdated = len(sf) - result['fieldname_error']
+	utils.showInfo((ngettext(
+		"%s note updated",
+		"%s notes updated", nupdated) % (nupdated))+  
+		
+		((ngettext(
+		"\n%s fieldname error. A note doesn't have the Source Field '%s' or the Destination Field '%s'",
+		"\n%s fieldname error. Those notes don't have the Source Field '%s' or the Destination Field '%s'", result['fieldname_error'])
+		% (result['fieldname_error'], fieldlist[srcField], fieldlist[dstField])) if result['fieldname_error'] > 0 else "")
+		)
+
+
+def setupMenu(editor):
+	a = QAction("AwesomeTTS MP3 Mass Generator", editor)
+	editor.form.menuEdit.addAction(a)
+	editor.connect(a, SIGNAL("triggered()"), lambda e=editor: onGenerate(e))
+
+addHook("browser.setupMenus", setupMenu)
 
 ######################################### Keys and AutoRead
 
@@ -214,20 +330,20 @@ def newKeyHandler(self, evt):
 
 
 
-def GTTSautoread(toread, automatic):
+def ATTSautoread(toread, automatic):
 	if not sound.hasSound(toread):
 		if automatic:
 			playTTSFromText(toread)
 
-def GTTS_OnQuestion(self):
-	GTTSautoread(self.card.q(), config.automaticQuestions)
+def ATTS_OnQuestion(self):
+	ATTSautoread(self.card.q(), config.automaticQuestions)
 
-def GTTS_OnAnswer(self):
-	GTTSautoread(self.card.a(), config.automaticAnswers)
+def ATTS_OnAnswer(self):
+	ATTSautoread(self.card.a(), config.automaticAnswers)
 
 
 
 Reviewer._keyHandler = wrap(Reviewer._keyHandler, newKeyHandler, "before")
-Reviewer._showQuestion = wrap(Reviewer._showQuestion, GTTS_OnQuestion, "after")
-Reviewer._showAnswer  = wrap(Reviewer._showAnswer, GTTS_OnAnswer, "after")
+Reviewer._showQuestion = wrap(Reviewer._showQuestion, ATTS_OnQuestion, "after")
+Reviewer._showAnswer  = wrap(Reviewer._showAnswer, ATTS_OnAnswer, "after")
         
