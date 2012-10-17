@@ -52,24 +52,32 @@ if subprocess.mswindows:
 		return filename_mp3.decode(sys.getfilesystemencoding())
 
 	def filegenerator_layout(form):
+		global DefaultSAPI5Voice
 		verticalLayout = QtGui.QVBoxLayout()
 		textEditlabel = QtGui.QLabel()
 		textEditlabel.setText("Voice:")
 		form.comboBoxsapi5 = QtGui.QComboBox()
 		form.comboBoxsapi5.addItems([d for d in voicelist])
+		form.comboBoxsapi5.setCurrentIndex(DefaultSAPI5Voice) # get Default
 
 		verticalLayout.addWidget(textEditlabel)
 		verticalLayout.addWidget(form.comboBoxsapi5)
 		return verticalLayout
 	
 	def recordsapi5TTS_form(form, text):
+		global DefaultSAPI5Voice
+		DefaultSAPI5Voice = form.comboBoxsapi5.currentIndex() #set new Default
 		return recordsapi5TTS(text, voicelist[form.comboBoxsapi5.currentIndex()])
 
 	def filegenerator_run(form):
+		global DefaultSAPI5Voice
+		DefaultSAPI5Voice = form.comboBoxsapi5.currentIndex() #set new Default
 		return recordsapi5TTS(unicode(form.texttoTTS.toPlainText()), voicelist[form.comboBoxsapi5.currentIndex()])
 
 	def filegenerator_preview(form):
 		return playsapi5TTS(unicode(form.texttoTTS.toPlainText()), voicelist[form.comboBoxsapi5.currentIndex()])
+
+	DefaultSAPI5Voice = 0
 
 	TTS_service = {'sapi5' : {
 	'name': 'SAPI 5',

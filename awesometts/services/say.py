@@ -36,24 +36,32 @@ if isMac:
 		return filename_mp3.decode('utf-8')
 
 	def filegenerator_layout(form):
+		global DefaultSayVoice
 		verticalLayout = QtGui.QVBoxLayout()
 		textEditlabel = QtGui.QLabel()
 		textEditlabel.setText("Voice:")
 		form.comboBoxSay = QtGui.QComboBox()
 		form.comboBoxSay.addItems(voicelist)
+		form.comboBoxSay.setCurrentIndex(DefaultSayVoice) # get Default
 
 		verticalLayout.addWidget(textEditlabel)
 		verticalLayout.addWidget(form.comboBoxSay)
 		return verticalLayout
 
 	def recordOSXsayTTS_form(form, text):
+		global DefaultSayVoice
+		DefaultSayVoice = form.comboBoxSay.currentIndex() #set new Default
 		return recordOSXsayTTS(text, voicelist[form.comboBoxSay.currentIndex()])
 
 	def filegenerator_run(form):
+		global DefaultSayVoice
+		DefaultSayVoice = form.comboBoxSay.currentIndex() #set new Default
 		return recordOSXsayTTS(unicode(form.texttoTTS.toPlainText()), voicelist[form.comboBoxSay.currentIndex()])
 
 	def filegenerator_preview(form):
 		return playOSXsayTTS(unicode(form.texttoTTS.toPlainText()), voicelist[form.comboBoxSay.currentIndex()])
+	
+	DefaultSayVoice = 0
 
 	TTS_service = {'say' : {
 	'name': 'OSX Say',

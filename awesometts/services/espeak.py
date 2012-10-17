@@ -94,25 +94,33 @@ def recordEspeakTTS(text, language):
 	return filename.decode('utf-8')
 
 def filegenerator_layout(form):
+	global DefaultEspeakVoice
 	verticalLayout = QtGui.QVBoxLayout()
 	textEditlabel = QtGui.QLabel()
 	textEditlabel.setText("Language:")
 	form.comboBoxEspeak = QtGui.QComboBox()
 	form.comboBoxEspeak.addItems([d[1] for d in slanguages])
+	form.comboBoxEspeak.setCurrentIndex(DefaultEspeakVoice) # get Default
 
 	verticalLayout.addWidget(textEditlabel)
 	verticalLayout.addWidget(form.comboBoxEspeak)
 	return verticalLayout
 
 def recordEspeakTTS_form(form, text):
+	global DefaultEspeakVoice
+	DefaultEspeakVoice = form.comboBoxEspeak.currentIndex() #set new Default
 	return recordEspeakTTS(text, slanguages[form.comboBoxEspeak.currentIndex()][0])
 
 def filegenerator_run(form):
+	global DefaultEspeakVoice
+	DefaultEspeakVoice = form.comboBoxEspeak.currentIndex() #set new Default
 	return recordEspeakTTS(unicode(form.texttoTTS.toPlainText()), slanguages[form.comboBoxEspeak.currentIndex()][0])
 
 def filegenerator_preview(form):
 	return playEspeakTTS(unicode(form.texttoTTS.toPlainText()), slanguages[form.comboBoxEspeak.currentIndex()][0])
 
+
+DefaultEspeakVoice = get_language_id('en')
 
 TTS_service = {'espeak' : {
 'name': 'Espeak',

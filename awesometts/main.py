@@ -5,7 +5,7 @@
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
 #
 #   AwesomeTTS plugin for Anki 2.0
-version = '1.0 Beta 5'
+version = '1.0 Beta 6'
 #
 #
 #   To use the on the fly function, use the [TTS] or [ATTS] tag, you can still use the [GTTS] tag
@@ -38,7 +38,7 @@ version = '1.0 Beta 5'
 #   Any problems, comments, please email me: arthur[at]life.net.br 
 #
 #
-#  Edited on 2012-10-16
+#  Edited on 2012-10-17
 #  
 ########################### Settings #######################################
 from PyQt4.QtCore import *
@@ -141,6 +141,8 @@ def TTS_record(text, service, param=None):
 
 ############################ MP3 File Generator
 
+serviceField = 0
+
 def filegenerator_onCBoxChange(selected, form, serv_list):
 	form.stackedWidget.setCurrentIndex(serv_list.index(selected))
 
@@ -151,6 +153,7 @@ def getService_byName(name):
 
 
 def ATTS_Factedit_button(self):
+	global serviceField
 	d = QDialog()
 	form = forms.filegenerator.Ui_Dialog()
 	form.setupUi(d)
@@ -162,6 +165,9 @@ def ATTS_Factedit_button(self):
 		tostack.setLayout(TTS_service[service]['filegenerator_layout'](form))
 		form.stackedWidget.addWidget(tostack)
 	
+	form.comboBoxService.setCurrentIndex(serviceField) #get defaults
+	form.stackedWidget.setCurrentIndex(serviceField)
+	
 	
 	QtCore.QObject.connect(form.previewbutton, QtCore.SIGNAL("clicked()"), lambda form=form: TTS_service[getService_byName(serv_list[form.comboBoxService.currentIndex()])]['filegenerator_preview'](form))
 	
@@ -169,7 +175,8 @@ def ATTS_Factedit_button(self):
 
 
 	if d.exec_():
-		srv = getService_byName(serv_list[form.comboBoxService.currentIndex()])
+		serviceField = form.comboBoxService.currentIndex() # set default
+		srv = getService_byName(serv_list[serviceField])
 		TTS_service[srv]['filegenerator_run'](form)
 		filename = TTS_service[srv]['filegenerator_run'](form)
 		self.addMedia(filename)
@@ -196,6 +203,7 @@ addHook("setupEditorButtons", ATTS_Fact_edit_setupFields)
 
 srcField = -1
 dstField = -1
+
 
 
 #take a break, so we don't fall in Google's blacklist. Code contributed by Dusan Arsenijevic
@@ -238,7 +246,7 @@ def generate_audio_files(factIds, frm, service, srcField_name, dstField_name):
 
 
 def onGenerate(self):
-	global TTS_language, dstField, srcField
+	global TTS_language, dstField, srcField, serviceField
 	sf = self.selectedNotes()
 	if not sf:
 		utils.showInfo("Select the notes and then use the MP3 Mass Generator")
@@ -256,12 +264,6 @@ def onGenerate(self):
 	for f in mw.col.models.all():
 		for a in f['flds']:
 			fieldlist.append(a['name'])
-	
-	frm.sourceFieldComboBox.addItems(fieldlist)
-	frm.sourceFieldComboBox.setCurrentIndex(srcField)
-
-	frm.destinationFieldComboBox.addItems(fieldlist)
-	frm.destinationFieldComboBox.setCurrentIndex(dstField)
 
 	#service list start
 	serv_list = [TTS_service[service]['name'] for service in TTS_service]
@@ -271,6 +273,15 @@ def onGenerate(self):
 		tostack = QWidget(frm.stackedWidget)
 		tostack.setLayout(TTS_service[service]['filegenerator_layout'](frm))
 		frm.stackedWidget.addWidget(tostack)
+
+	frm.comboBoxService.setCurrentIndex(serviceField) #get defaults
+	frm.stackedWidget.setCurrentIndex(serviceField)
+
+	frm.sourceFieldComboBox.addItems(fieldlist)
+	frm.sourceFieldComboBox.setCurrentIndex(srcField)
+
+	frm.destinationFieldComboBox.addItems(fieldlist)
+	frm.destinationFieldComboBox.setCurrentIndex(dstField)
 	
 	QtCore.QObject.connect(frm.comboBoxService, QtCore.SIGNAL("currentIndexChanged(QString)"), lambda selected,frm=frm,serv_list=serv_list: filegenerator_onCBoxChange(selected, frm, serv_list))
 	#service list end
@@ -279,9 +290,9 @@ def onGenerate(self):
 	if not d.exec_():
 		return
 
+	serviceField = frm.comboBoxService.currentIndex() # set defaults
 	srcField = frm.sourceFieldComboBox.currentIndex()
 	dstField = frm.destinationFieldComboBox.currentIndex()
-	#languageField = frm.languageComboBox.currentIndex()
 
 	if srcField == -1 or dstField == -1 :
 		return

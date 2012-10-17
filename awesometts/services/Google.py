@@ -55,6 +55,14 @@ import awesometts.config as config
 import awesometts.util as util
 from subprocess import Popen, PIPE, STDOUT
 
+def get_language_id(language_code):
+	x = 0
+	for d in slanguages:
+		if d[0]==language_code:
+			return x
+		x = x + 1
+
+
 def playGoogleTTS(text, language):
 	text = re.sub("\[sound:.*?\]", "", stripHTML(text.replace("\n", "")).encode('utf-8'))
 	address = TTS_ADDRESS+'?tl='+language+'&q='+ quote_plus(text)
@@ -78,14 +86,9 @@ def playfromtagGoogleTTS(fromtag):
 		playGoogleTTS(match.group(2), match.group(1))
 
 def recordGoogleTTS(form, text):
+	global DefaultGoogleVoice
+	DefaultGoogleVoice = form.comboBoxGoogle.currentIndex() #set new Default
 	return TTS_record_old(text, slanguages[form.comboBoxGoogle.currentIndex()][0])
-
-def get_language_id(language_code):
-	x = 0
-	for d in slanguages:
-		if d[0]==language_code:
-			return x
-		x = x + 1
 
 
 def TTS_record_old(text, language):
@@ -102,22 +105,27 @@ def TTS_record_old(text, language):
 	return file.decode('utf-8')
 
 def filegenerator_layout(form):
+	global DefaultGoogleVoice
 	verticalLayout = QtGui.QVBoxLayout()
 	textEditlabel = QtGui.QLabel()
 	textEditlabel.setText("Language:")
 	form.comboBoxGoogle = QtGui.QComboBox()
 	form.comboBoxGoogle.addItems([d[1] for d in slanguages])
+	form.comboBoxGoogle.setCurrentIndex(DefaultGoogleVoice) # get Default
 
 	verticalLayout.addWidget(textEditlabel)
 	verticalLayout.addWidget(form.comboBoxGoogle)
 	return verticalLayout
 
 def filegenerator_run(form):
+	global DefaultGoogleVoice
+	DefaultGoogleVoice = form.comboBoxGoogle.currentIndex() #set new Default
 	return TTS_record_old(unicode(form.texttoTTS.toPlainText()), slanguages[form.comboBoxGoogle.currentIndex()][0])
 
 def filegenerator_preview(form):
 	return playGoogleTTS(unicode(form.texttoTTS.toPlainText()), slanguages[form.comboBoxGoogle.currentIndex()][0])
 
+DefaultGoogleVoice = get_language_id('en')
 
 TTS_service = {'g' : {
 'name': 'Google',
