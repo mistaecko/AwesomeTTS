@@ -13,6 +13,7 @@ if isMac:
 	vlist = subprocess.check_output("say -v ? |sed 's/  .*//'", shell=True)
 
 	voicelist = vlist.split('\n')
+	voicelist.pop()
 
 	def playOSXsayTTS(text, voice):
 		text = re.sub("\[sound:.*?\]", "", stripHTML(text.replace("\n", "")).encode('utf-8'))
@@ -28,7 +29,7 @@ if isMac:
 	def recordOSXsayTTS(text, voice):
 		text = re.sub("\[sound:.*?\]", "", stripHTML(text.replace("\n", "")).encode('utf-8'))
 		filename_aiff = util.generateFileName(text, 'say', 'iso-8859-1', '.aiff')
-		filename_mp3 = util.generateFileName(text, 'say', 'iso-8859-1', '.aiff')
+		filename_mp3 = util.generateFileName(text, 'say', 'iso-8859-1', '.mp3')
 		subprocess.Popen(['say', '-v', voice, '-o', filename_aiff, text], stdin=PIPE, stdout=PIPE, stderr=STDOUT).wait()
 		subprocess.Popen(['lame', '--quiet', filename_aiff, filename_mp3], stdin=PIPE, stdout=PIPE, stderr=STDOUT).wait()
 		subprocess.Popen(['rm', filename_aiff], stdin=PIPE, stdout=PIPE, stderr=STDOUT).wait()
@@ -39,7 +40,7 @@ if isMac:
 		textEditlabel = QtGui.QLabel()
 		textEditlabel.setText("Voice:")
 		form.comboBoxSay = QtGui.QComboBox()
-		form.comboBoxSay.addItems([d for d in voicelist])
+		form.comboBoxSay.addItems(voicelist)
 
 		verticalLayout.addWidget(textEditlabel)
 		verticalLayout.addWidget(form.comboBoxSay)
