@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 
 from PyQt4.QtCore import *
-import os,sqlite3
+import os, sys, sqlite3
 
 conffile = os.path.join(os.path.dirname(os.path.realpath(__file__)), "conf.db")
+conffile = conffile.decode(sys.getfilesystemencoding())
  
 conn = sqlite3.connect(conffile, isolation_level=None)
 conn.row_factory = sqlite3.Row
