@@ -1,45 +1,45 @@
 # -*- coding: utf-8 -*-
 
 from PyQt4.QtCore import *
+import os,sqlite3
+
+conffile = os.path.join(os.path.dirname(os.path.realpath(__file__)), "conf.db")
+ 
+conn = sqlite3.connect(conffile, isolation_level=None)
+conn.row_factory = sqlite3.Row
+
+cursor = conn.cursor()
+
+cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='general'")
+
+tblexit = cursor.fetchall()
+
+
+if len (tblexit) < 1:
+	cursor.execute("CREATE TABLE general (automaticQuestions numeric, automaticAnswers numeric, file_howto_name numeric, file_max_length numeric, file_extension text, subprocessing numeric, TTS_KEY_Q numeric, TTS_KEY_A numeric)")
+	cursor.execute("INSERT INTO general VALUES (0, 0, 1, 100, 'mp3', 1, ?, ?)", (Qt.Key_F3, Qt.Key_F4))
+
+cursor.execute("SELECT * FROM general")
+
+r = cursor.fetchone()
+
 
 # Key to get the [TTS::] tags in the Question field pronounced
-TTS_KEY_Q=Qt.Key_F3
+TTS_KEY_Q=r['TTS_KEY_Q']
 
 # Key to get the [TTS::] tags in the Answer field pronounced
-TTS_KEY_A=Qt.Key_F4
+TTS_KEY_A=r['TTS_KEY_A']
 
 
-#all the available keys are in http://doc.trolltech.com/qtjambi-4.4/html/com/trolltech/qt/core/Qt.Key.html
+automaticQuestions = r['automaticQuestions']
+automaticAnswers = r['automaticAnswers']
+quote_mp3 = r['file_howto_name']
+subprocessing = r['subprocessing']
+file_max_length = r['file_max_length']
+file_extension = r['file_extension']
 
-
-#sorry, the TTS won't recite it automatically when there is a sound file in the Question/Answer
-
-# Option to automatically recite the Question field as it appears:
-automaticQuestions = False        # disable the automatic recite
-#automaticQuestions = True         # recite [TTS::] tags in the Questions as it appears
-
-
-# Option to automatically recite the Answers field as it appears
-automaticAnswers = False          # disable the automatic recite
-#automaticAnswers = True           # recite [TTS::] tags in the Answers as it appears
-
-
-
-
-# quote (encode) special characters for mp3 file names:
-# Windows users should have their mp3 files quoted (True), if you want to try, the system encoding should be the same as the language you are learning. and in the Table slanguage, the right charset should be set there. (it may not work, do this only if you know what you are doing. If you want it really want it, install Linux! :D
-# Unix users don't need to quote (encode) special characters. so you can set it as False if you want.
-# it will work alright sync with AnkiMobile, but it won't work with AnkiWeb
-quote_mp3 = True	# spC3A9cial.mp3 E381AFE38184.mp3 E4BDA0E5A5BD.mp3
-#quote_mp3 = False  # spécial.mp3 はい.mp3　你好.mp3
-
-
-#subprocessing is enabled by default
-# on MS Windows XP or older or on Mac OSX, there is a bug of cutting the ending of a speech occasionally, so you may want to disable it.
-#if it's disable(false), Anki will be frozen while GoogleTTS recites the speech. 
-#subprocessing = False
-subprocessing = True
-
+def saveConfig(config):
+	cursor.execute("UPDATE general SET automaticQuestions=?, automaticAnswers=?, file_howto_name=?, file_max_length=?, file_extension=?, subprocessing=?, TTS_KEY_Q=?, TTS_KEY_A=? ", (config.automaticQuestions, config.automaticAnswers, config.quote_mp3, config.file_max_length, config.file_extension, config.subprocessing, config.TTS_KEY_Q, config.TTS_KEY_A))
 
 
 TTS_service = {}

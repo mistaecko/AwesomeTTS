@@ -45,15 +45,30 @@ slanguages = [['af', 'Afrikaans', 'cp1252'], #or iso-8859-1
 ['vi', 'Vietnamese',	'cp1258'],
 ['cy', 'Welsh',		'iso-8859-14']]
 
+
+
 TTS_ADDRESS = 'http://translate.google.com/translate_tts'
 
 
-import re, subprocess
+import re, subprocess, urllib
 from anki.utils import stripHTML
 from urllib import quote_plus
 import awesometts.config as config
 import awesometts.util as util
 from subprocess import Popen, PIPE, STDOUT
+
+
+
+# Prepend http proxy if one is being used.  Scans the environment for
+# a variable named "http_proxy" for all operating systems
+# proxy code contributted by Scott Otterson
+proxies = urllib.getproxies()
+
+if len(proxies)>0 and "http" in proxies:
+	proxStr = re.sub("http:", "http_proxy:", proxies['http'])
+	TTS_ADDRESS = proxStr + "/" + TTS_ADDRESS
+
+
 
 def get_language_id(language_code):
 	x = 0

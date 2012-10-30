@@ -5,7 +5,7 @@
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
 #
 #   AwesomeTTS plugin for Anki 2.0
-version = '1.0 Beta 7'
+version = '1.0 Beta 8'
 #
 #
 #   To use the on the fly function, use the [TTS] or [ATTS] tag, you can still use the [GTTS] tag
@@ -38,7 +38,7 @@ version = '1.0 Beta 7'
 #   Any problems, comments, please email me: arthur[at]life.net.br 
 #
 #
-#  Edited on 2012-10-17
+#  Edited on 2012-10-30
 #  
 ########################### Settings #######################################
 from PyQt4.QtCore import *
@@ -46,7 +46,7 @@ from PyQt4.QtCore import *
 
 import awesometts.config as config
 
-import os, subprocess, re, sys, urllib, imp
+import os, subprocess, re, sys, urllib, imp, types
 from aqt import mw, utils
 from anki import sound
 from anki.sound import playFromText
@@ -86,17 +86,6 @@ for i in range(len(modulesfiles)):
 
 
 file_max_length = 255 # Max filename length for Unix
-
-# Prepend http proxy if one is being used.  Scans the environment for
-# a variable named "http_proxy" for all operating systems
-# proxy code contributted by Scott Otterson
-proxies = urllib.getproxies()
-
-if len(proxies)>0 and "http" in proxies:
-	proxStr = re.sub("http:", "http_proxy:", proxies['http'])
-	TTS_ADDRESS = proxStr + "/" + TTS_ADDRESS
-
-
 
 
 
@@ -331,6 +320,74 @@ def setupMenu(editor):
 
 addHook("browser.setupMenus", setupMenu)
 
+######### Configurator
+
+def KeyToString (val):
+	for k,v in vars(Qt).iteritems():
+		if v==val and k[:4] == "Key_":
+			return k[4:]
+	return 'Unknown'
+
+def Conf_keyPressEvent(button, e):
+	if button.getkey:
+		button.setText(KeyToString(e.key()))
+		button.keyval = e.key()
+		button.getkey = False
+
+def getKey (button):
+	button.setText("Press a new hotkey")
+	button.getkey = True
+
+def editConf():
+	global TTS_language, dstField, srcField, serviceField, Conf_keyPressEvent
+	d = QDialog()
+	
+	form = forms.configurator.Ui_Dialog()
+	form.setupUi(d)
+	
+	form.pushKeyQ.keyPressEvent = types.MethodType( Conf_keyPressEvent, form.pushKeyQ )
+	form.pushKeyA.keyPressEvent = types.MethodType( Conf_keyPressEvent, form.pushKeyA )
+	form.pushKeyQ.setText(KeyToString(config.TTS_KEY_Q))
+	form.pushKeyA.setText(KeyToString(config.TTS_KEY_A))
+	form.pushKeyQ.keyval = config.TTS_KEY_Q
+	form.pushKeyA.keyval = config.TTS_KEY_A
+
+	form.cAutoQ.setChecked(config.automaticQuestions)
+	form.cAutoA.setChecked(config.automaticAnswers)
+	form.cSubprocessing.setChecked(config.subprocessing)
+	
+	form.rfilename_plain.setChecked((not config.quote_mp3))
+	form.rfilename_quoted.setChecked(config.quote_mp3)
+	
+	QtCore.QObject.connect(form.pushKeyQ, QtCore.SIGNAL("clicked()"), lambda form=form: getKey(form.pushKeyQ))
+	QtCore.QObject.connect(form.pushKeyA, QtCore.SIGNAL("clicked()"), lambda form=form: getKey(form.pushKeyA))
+	
+	d.setWindowModality(Qt.WindowModal)
+	
+	form.label_version.setText("Version "+ version)
+	
+	if not d.exec_():
+		return
+
+	config.TTS_KEY_Q = form.pushKeyQ.keyval
+	config.TTS_KEY_A = form.pushKeyA.keyval
+	config.automaticQuestions = form.cAutoQ.isChecked()
+	config.automaticAnswers = form.cAutoA.isChecked()
+	config.subprocessing = form.cSubprocessing.isChecked()
+	config.quote_mp3 = form.rfilename_quoted.isChecked()
+	config.saveConfig(config)
+
+
+# create a new menu item, "test"
+menuconf = QAction("AwesomeTTS", mw)
+# set it to call testFunction when it's clicked
+mw.connect(menuconf, SIGNAL("triggered()"), editConf)
+# and add it to the tools menu
+mw.form.menuTools.addAction(menuconf)
+
+
+
+
 ######################################### Keys and AutoRead
 
 ## Check pressed key
@@ -361,4 +418,4 @@ def ATTS_OnAnswer(self):
 Reviewer._keyHandler = wrap(Reviewer._keyHandler, newKeyHandler, "before")
 Reviewer._showQuestion = wrap(Reviewer._showQuestion, ATTS_OnQuestion, "after")
 Reviewer._showAnswer  = wrap(Reviewer._showAnswer, ATTS_OnAnswer, "after")
-        
+
