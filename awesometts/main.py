@@ -8,32 +8,8 @@
 version = '1.0 Beta 9'
 #
 #
-#   To use the on the fly function, use the [TTS] or [ATTS] tag, you can still use the [GTTS] tag
-#
-#  [TTS:service_name:voice_or_language_code:text_to_tts]
-# or
-#  [ATTS:service_name:voice_or_language_code:text_to_tts]
-#
-# example: 
-#
-# Unix Espeak service:
-#
-#  [TTS:espeak:en:hello I'm a plugin]
-#
-# OSX Say service:
-#
-#  [TTS:say:Fred:hello I'm a plugin]
-#
-# GoogleTTS:
-#
-#  [TTS:g:en:hello I'm a plugin]
-# or
-#  [GTTS:en:hello I'm a plugin]
-#
-#
-#  you can also generate the audio when editing a card.
-#
-# other functions will be added later.
+#   Instrutions on the website:
+#  https://ankiweb.net/shared/info/301952613
 #
 #   Any problems, comments, please email me: arthur[at]life.net.br 
 #
