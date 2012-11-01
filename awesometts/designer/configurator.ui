@@ -115,27 +115,27 @@
            <item>
             <widget class="QLabel" name="label">
              <property name="text">
-              <string>Options of how AwesomeTTS will play the [TTS::] tags on the fly.</string>
+              <string>Options of how AwesomeTTS will play the &lt;TTS&gt; tags on the fly.</string>
              </property>
             </widget>
            </item>
            <item>
             <widget class="QGroupBox" name="groupBox">
              <property name="title">
-              <string>Automatic [TTS::] tag Recitation</string>
+              <string>Automatic &lt;TTS&gt; tag Recitation</string>
              </property>
              <layout class="QVBoxLayout" name="verticalLayout_5">
               <item>
                <widget class="QCheckBox" name="cAutoQ">
                 <property name="text">
-                 <string>Automatically recite [TTS::] tags on Questions</string>
+                 <string>Automatically recite &lt;TTS&gt; tags on Questions</string>
                 </property>
                </widget>
               </item>
               <item>
                <widget class="QCheckBox" name="cAutoA">
                 <property name="text">
-                 <string>Automatically recite [TTS::] tags on Answers</string>
+                 <string>Automatically recite &lt;TTS&gt; tags on Answers</string>
                 </property>
                </widget>
               </item>
@@ -151,7 +151,7 @@
               <item row="0" column="0">
                <widget class="QLabel" name="label_2">
                 <property name="text">
-                 <string>Key to read [TTS::] tags on Questions</string>
+                 <string>Key to read &lt;TTS&gt; tags on Questions</string>
                 </property>
                </widget>
               </item>
@@ -162,17 +162,17 @@
                 </property>
                </widget>
               </item>
-              <item row="1" column="0">
-               <widget class="QLabel" name="label_4">
-                <property name="text">
-                 <string>Key to read [TTS::] tags on Answer</string>
-                </property>
-               </widget>
-              </item>
               <item row="1" column="1">
                <widget class="QPushButton" name="pushKeyA">
                 <property name="text">
                  <string>PushButton</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="0">
+               <widget class="QLabel" name="label_4">
+                <property name="text">
+                 <string>Key to read &lt;TTS&gt; tags on Answer</string>
                 </property>
                </widget>
               </item>
@@ -254,11 +254,6 @@ If you are having problems, stick with the MP3 Generator.</string>
              </widget>
             </item>
            </layout>
-           <zorder>label_5</zorder>
-           <zorder>rfilename_plain</zorder>
-           <zorder>label_5</zorder>
-           <zorder>rfilename_plain</zorder>
-           <zorder>rfilename_quoted</zorder>
           </widget>
           <widget class="QLabel" name="label_6">
            <property name="geometry">

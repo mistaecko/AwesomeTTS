@@ -37,10 +37,15 @@ if subprocess.mswindows:
 			subprocess.Popen(param, startupinfo=util.si, stdin=PIPE, stdout=PIPE, stderr=STDOUT).communicate()
 
 	def playfromtagsapi5TTS(fromtag):
-		print fromtag
 		for item in fromtag:
 			match = re.match("(.*?):(.*)", item, re.M|re.I)
 			playsapi5TTS(match.group(2), match.group(1))
+
+	def playfromHTMLtagsapi5TTS(fromtag):
+		for item in fromtag:
+			text = item.string
+			voice = item['voice']
+			playsapi5TTS(text, voice)
 
 	def recordsapi5TTS(text, voice):
 		text = re.sub("\[sound:.*?\]", "", stripHTML(text.replace("\n", "")))
@@ -83,6 +88,7 @@ if subprocess.mswindows:
 	'name': 'SAPI 5',
 	'play' : playsapi5TTS,
 	'playfromtag' : playfromtagsapi5TTS,
+	'playfromHTMLtag' : playfromHTMLtagsapi5TTS,
 	'record' : recordsapi5TTS_form,
 	'filegenerator_layout': filegenerator_layout,
 	'filegenerator_preview': filegenerator_preview,

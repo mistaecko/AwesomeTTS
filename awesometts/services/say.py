@@ -26,6 +26,12 @@ if isMac:
 			match = re.match("(.*?):(.*)", item, re.M|re.I)
 			playOSXsayTTS(match.group(2), match.group(1))
 
+	def playfromHTMLtagOSXsayTTS(fromtag):
+		for item in fromtag:
+			text = item.string
+			voice = item['voice']
+			playOSXsayTTS(text, voice)
+
 	def recordOSXsayTTS(text, voice):
 		text = re.sub("\[sound:.*?\]", "", stripHTML(text.replace("\n", "")).encode('utf-8'))
 		filename_aiff = util.generateFileName(text, 'say', 'iso-8859-1', '.aiff')
@@ -67,6 +73,7 @@ if isMac:
 	'name': 'OSX Say',
 	'play' : playOSXsayTTS,
 	'playfromtag' : playfromtagOSXsayTTS,
+	'playfromHTMLtag' : playfromHTMLtagOSXsayTTS,
 	'record' : recordOSXsayTTS_form,
 	'filegenerator_layout': filegenerator_layout,
 	'filegenerator_preview': filegenerator_preview,

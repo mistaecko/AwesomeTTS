@@ -5,7 +5,7 @@
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
 #
 #   AwesomeTTS plugin for Anki 2.0
-version = '1.0 Beta 8.1'
+version = '1.0 Beta 9'
 #
 #
 #   To use the on the fly function, use the [TTS] or [ATTS] tag, you can still use the [GTTS] tag
@@ -38,7 +38,7 @@ version = '1.0 Beta 8.1'
 #   Any problems, comments, please email me: arthur[at]life.net.br 
 #
 #
-#  Edited on 2012-10-30
+#  Edited on 2012-11-01
 #  
 ########################### Settings #######################################
 from PyQt4.QtCore import *
@@ -98,12 +98,13 @@ def get_language_id(language_code):
 		if d[0]==language_code:
 			return x
 		x = x + 1
-
-
 	
 
 def playTTSFromText(text):
+	tospeakHTML = getTTSFromHTML(text)
 	tospeak = getTTSFromText(text)
+	for service in tospeakHTML:
+		TTS_service[service]['playfromHTMLtag'](tospeakHTML[service])
 	for service in tospeak:
 		TTS_service[service]['playfromtag'](tospeak[service])
 
@@ -118,6 +119,21 @@ def getTTSFromText(text):
 			tospeak[service].append(value)
 	return tospeak
 
+def getTTSFromHTML(html):
+	from BeautifulSoup import BeautifulSoup
+	
+	soup = BeautifulSoup(html)
+	tospeakhtml = {}
+	
+	for htmltag in soup('tts'):
+		service = htmltag['service'].lower()
+		if htmltag.string == None or htmltag.string == '' or htmltag.string.isspace():
+			continue #skip empty tags
+		if not tospeakhtml.has_key(service):
+			tospeakhtml.update({ service: [htmltag] })
+		else:
+			tospeakhtml[service].append(htmltag)
+	return tospeakhtml
 
 
 

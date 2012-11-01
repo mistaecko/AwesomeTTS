@@ -73,6 +73,11 @@ def playfromtagEspeakTTS(fromtag):
 		match = re.match("(.*?):(.*)", item, re.M|re.I)
 		playEspeakTTS(match.group(2), match.group(1))
 
+def playfromHTMLtagEspeakTTS(fromtag):
+	for item in fromtag:
+		text = item.string
+		voice = item['voice']
+		playEspeakTTS(text, voice)
 
 def get_language_id(language_code):
 	x = 0
@@ -126,6 +131,7 @@ TTS_service = {'espeak' : {
 'name': 'Espeak',
 'play' : playEspeakTTS,
 'playfromtag' : playfromtagEspeakTTS,
+'playfromHTMLtag' : playfromHTMLtagEspeakTTS,
 'record' : recordEspeakTTS_form,
 'filegenerator_layout': filegenerator_layout,
 'filegenerator_preview': filegenerator_preview,

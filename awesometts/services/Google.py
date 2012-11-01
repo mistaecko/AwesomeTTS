@@ -100,6 +100,12 @@ def playfromtagGoogleTTS(fromtag):
 		match = re.match("(.*?):(.*)", item, re.M|re.I)
 		playGoogleTTS(match.group(2), match.group(1))
 
+def playfromHTMLtagGoogleTTS(fromtag):
+	for item in fromtag:
+		text = item.string
+		voice = item['voice']
+		playGoogleTTS(text, voice)
+
 def recordGoogleTTS(form, text):
 	global DefaultGoogleVoice
 	DefaultGoogleVoice = form.comboBoxGoogle.currentIndex() #set new Default
@@ -146,6 +152,7 @@ TTS_service = {'g' : {
 'name': 'Google',
 'play' : playGoogleTTS,
 'playfromtag' : playfromtagGoogleTTS,
+'playfromHTMLtag' : playfromHTMLtagGoogleTTS,
 'record' : recordGoogleTTS,
 'filegenerator_layout': filegenerator_layout,
 'filegenerator_preview': filegenerator_preview,
