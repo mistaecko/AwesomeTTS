@@ -5,7 +5,7 @@
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
 #
 #   AwesomeTTS plugin for Anki 2.0
-version = '1.0 Beta 9'
+version = '1.0 Beta 10'
 #
 #
 #   Instrutions on the website:
@@ -14,7 +14,7 @@ version = '1.0 Beta 9'
 #   Any problems, comments, please email me: arthur[at]life.net.br 
 #
 #
-#  Edited on 2012-11-01
+#  Edited on 2012-12-06
 #  
 ########################### Settings #######################################
 from PyQt4.QtCore import *
@@ -22,7 +22,7 @@ from PyQt4.QtCore import *
 
 import awesometts.config as config
 
-import os, subprocess, re, sys, urllib, imp, types
+import os, subprocess, re, sys, urllib, imp, types, time
 from aqt import mw, utils
 from anki import sound
 from anki.sound import playFromText
@@ -103,7 +103,8 @@ def getTTSFromHTML(html):
 	
 	for htmltag in soup('tts'):
 		service = htmltag['service'].lower()
-		if htmltag.string == None or htmltag.string == '' or htmltag.string.isspace():
+		text = ''.join(htmltag.findAll(text=True)) #get all the text from the tag and stips html
+		if text == None or text == '' or text.isspace():
 			continue #skip empty tags
 		if not tospeakhtml.has_key(service):
 			tospeakhtml.update({ service: [htmltag] })

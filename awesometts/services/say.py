@@ -28,7 +28,7 @@ if isMac:
 
 	def playfromHTMLtagOSXsayTTS(fromtag):
 		for item in fromtag:
-			text = item.string
+			text = text = ''.join(item.findAll(text=True))
 			voice = item['voice']
 			playOSXsayTTS(text, voice)
 

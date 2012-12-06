@@ -75,7 +75,7 @@ def playfromtagEspeakTTS(fromtag):
 
 def playfromHTMLtagEspeakTTS(fromtag):
 	for item in fromtag:
-		text = item.string
+		text = ''.join(item.findAll(text=True))
 		voice = item['voice']
 		playEspeakTTS(text, voice)
 
@@ -104,7 +104,7 @@ def filegenerator_layout(form):
 	textEditlabel = QtGui.QLabel()
 	textEditlabel.setText("Language:")
 	form.comboBoxEspeak = QtGui.QComboBox()
-	form.comboBoxEspeak.addItems([d[1] for d in slanguages])
+	form.comboBoxEspeak.addItems([d[0] +' - '+ d[1] for d in slanguages])
 	form.comboBoxEspeak.setCurrentIndex(DefaultEspeakVoice) # get Default
 
 	verticalLayout.addWidget(textEditlabel)

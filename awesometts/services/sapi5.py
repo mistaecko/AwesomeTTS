@@ -43,7 +43,7 @@ if subprocess.mswindows:
 
 	def playfromHTMLtagsapi5TTS(fromtag):
 		for item in fromtag:
-			text = item.string
+			text = text = ''.join(item.findAll(text=True))
 			voice = item['voice']
 			playsapi5TTS(text, voice)
 

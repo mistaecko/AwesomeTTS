@@ -102,7 +102,7 @@ def playfromtagGoogleTTS(fromtag):
 
 def playfromHTMLtagGoogleTTS(fromtag):
 	for item in fromtag:
-		text = item.string
+		text = ''.join(item.findAll(text=True))
 		voice = item['voice']
 		playGoogleTTS(text, voice)
 
@@ -130,8 +130,12 @@ def filegenerator_layout(form):
 	verticalLayout = QtGui.QVBoxLayout()
 	textEditlabel = QtGui.QLabel()
 	textEditlabel.setText("Language:")
+
+	font = QtGui.QFont()
+       	font.setFamily("Monospace")
 	form.comboBoxGoogle = QtGui.QComboBox()
-	form.comboBoxGoogle.addItems([d[1] for d in slanguages])
+	form.comboBoxGoogle.setFont(font)
+	form.comboBoxGoogle.addItems([d[0] +' - '+ d[1] for d in slanguages])
 	form.comboBoxGoogle.setCurrentIndex(DefaultGoogleVoice) # get Default
 
 	verticalLayout.addWidget(textEditlabel)
