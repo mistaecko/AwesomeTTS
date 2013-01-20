@@ -41,6 +41,7 @@ slanguages = [['af', 'Afrikaans', 'cp1252'], #or iso-8859-1
 ['es', 'Spanish',	'cp1252'], #or iso-8859-1
 ['sw', 'Swahili',	'cp1252'], #or iso-8859-1
 ['sv', 'Swedish',	'cp1252'], #or iso-8859-1
+['th', 'Thai',	'CP874'], #or iso-8859-11
 ['tr', 'Turkish',	'cp1254'], #or iso-8859-9
 ['vi', 'Vietnamese',	'cp1258'],
 ['cy', 'Welsh',		'iso-8859-14']]
