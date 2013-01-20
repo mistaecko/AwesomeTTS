@@ -53,7 +53,7 @@ for i in range(len(modulesfiles)):
 				TTS_service.update(modules[name[0]].TTS_service)
 			else:
 				del modules[name[0]]
-		
+
 #for path in glob.glob(os.path.dirname(__file__)+"/services/[!_]*.py"):
 #	name, ext = os.path.splitext(os.path.basename(path))
 #	modules[name] = imp.load_source(name, path)
@@ -74,7 +74,7 @@ def get_language_id(language_code):
 		if d[0]==language_code:
 			return x
 		x = x + 1
-	
+
 
 def playTTSFromText(text):
 	tospeakHTML = getTTSFromHTML(text)
@@ -97,10 +97,10 @@ def getTTSFromText(text):
 
 def getTTSFromHTML(html):
 	from BeautifulSoup import BeautifulSoup
-	
+
 	soup = BeautifulSoup(html)
 	tospeakhtml = {}
-	
+
 	for htmltag in soup('tts'):
 		service = htmltag['service'].lower()
 		text = ''.join(htmltag.findAll(text=True)) #get all the text from the tag and stips html
@@ -146,13 +146,13 @@ def ATTS_Factedit_button(self):
 		tostack = QWidget(form.stackedWidget)
 		tostack.setLayout(TTS_service[service]['filegenerator_layout'](form))
 		form.stackedWidget.addWidget(tostack)
-	
+
 	form.comboBoxService.setCurrentIndex(serviceField) #get defaults
 	form.stackedWidget.setCurrentIndex(serviceField)
-	
-	
+
+
 	QtCore.QObject.connect(form.previewbutton, QtCore.SIGNAL("clicked()"), lambda form=form: TTS_service[getService_byName(serv_list[form.comboBoxService.currentIndex()])]['filegenerator_preview'](form))
-	
+
 	QtCore.QObject.connect(form.comboBoxService, QtCore.SIGNAL("currentIndexChanged(QString)"), lambda selected,form=form,serv_list=serv_list: filegenerator_onCBoxChange(selected, form, serv_list))
 
 	if d.exec_() and form.texttoTTS.toPlainText() != '' and not form.texttoTTS.toPlainText().isspace():
@@ -160,7 +160,8 @@ def ATTS_Factedit_button(self):
 		srv = getService_byName(serv_list[serviceField])
 		TTS_service[srv]['filegenerator_run'](form)
 		filename = TTS_service[srv]['filegenerator_run'](form)
-		self.addMedia(filename)
+		if filename:
+			self.addMedia(filename)
 
 def ATTS_Fact_edit_setupFields(self):
 	AwesomeTTS = QPushButton(self.widget)
@@ -200,34 +201,35 @@ def generate_audio_files(factIds, frm, service, srcField_name, dstField_name):
 	returnval = {'fieldname_error': 0}
 	nelements = len(factIds)
 	batch = 900
-	
+
 	for c, id in enumerate(factIds):
 		if service == 'g' and (c+1)%batch == 0: # GoogleTTS has to take a break once in a while
 			take_a_break(c, nelements)
 		note = mw.col.getNote(id)
-		
+
 		if not (srcField_name in note.keys() and dstField_name in note.keys()):
 			returnval['fieldname_error'] += 1
 			note.flush()
 			continue
-				
+
 		mw.progress.update(label="Generating MP3 files...\n%s of %s\n%s" % (c+1, nelements,note[srcField_name]))
 
 		if note[srcField_name] == '' or note[srcField_name].isspace(): #check if the field is blank
 			note.flush()
 			continue
-		
+
 		filename = TTS_service[service]['record'](frm, note[srcField_name])
-		
-		if frm.radioOverwrite.isChecked():
-			if frm.checkBoxSndTag.isChecked():
-				note[dstField_name] = '[sound:'+ filename +']'
+
+		if filename:
+			if frm.radioOverwrite.isChecked():
+				if frm.checkBoxSndTag.isChecked():
+					note[dstField_name] = '[sound:'+ filename +']'
+				else:
+					note[dstField_name] = filename
 			else:
-				note[dstField_name] = filename
-		else:
-			note[dstField_name] += ' [sound:'+ filename +']'
+				note[dstField_name] += ' [sound:'+ filename +']'
 		note.flush()
-		
+
 	return returnval
 
 
@@ -243,9 +245,9 @@ def onGenerate(self):
 	frm = forms.massgenerator.Ui_Dialog()
 	frm.setupUi(d)
 	d.setWindowModality(Qt.WindowModal)
-	
+
 	frm.label_version.setText("Version "+ version)
-	
+
 	fieldlist = []
 	for f in mw.col.models.all():
 		for a in f['flds']:
@@ -254,7 +256,7 @@ def onGenerate(self):
 	#service list start
 	serv_list = [TTS_service[service]['name'] for service in TTS_service]
 	frm.comboBoxService.addItems(serv_list)
-	
+
 	for service in TTS_service:
 		tostack = QWidget(frm.stackedWidget)
 		tostack.setLayout(TTS_service[service]['filegenerator_layout'](frm))
@@ -268,11 +270,11 @@ def onGenerate(self):
 
 	frm.destinationFieldComboBox.addItems(fieldlist)
 	frm.destinationFieldComboBox.setCurrentIndex(dstField)
-	
+
 	QtCore.QObject.connect(frm.comboBoxService, QtCore.SIGNAL("currentIndexChanged(QString)"), lambda selected,frm=frm,serv_list=serv_list: filegenerator_onCBoxChange(selected, frm, serv_list))
 	#service list end
-	
-	
+
+
 	if not d.exec_():
 		return
 
@@ -282,12 +284,12 @@ def onGenerate(self):
 
 	if srcField == -1 or dstField == -1 :
 		return
-	
+
 	service = getService_byName(serv_list[frm.comboBoxService.currentIndex()])
 
 	self.mw.checkpoint(_("AwesomeTTS MP3 Mass Generator"))
 	self.mw.progress.start(immediate=True, label="Generating MP3 files...")
-	
+
 	self.model.beginReset()
 
 	result = generate_audio_files(sf, frm, service, fieldlist[srcField], fieldlist[dstField])
@@ -297,8 +299,8 @@ def onGenerate(self):
 	nupdated = len(sf) - result['fieldname_error']
 	utils.showInfo((ngettext(
 		"%s note updated",
-		"%s notes updated", nupdated) % (nupdated))+  
-		
+		"%s notes updated", nupdated) % (nupdated))+
+
 		((ngettext(
 		"\n%s fieldname error. A note doesn't have the Source Field '%s' or the Destination Field '%s'",
 		"\n%s fieldname error. Those notes don't have the Source Field '%s' or the Destination Field '%s'", result['fieldname_error'])
@@ -334,10 +336,10 @@ def getKey (button):
 def editConf():
 	global TTS_language, dstField, srcField, serviceField, Conf_keyPressEvent
 	d = QDialog()
-	
+
 	form = forms.configurator.Ui_Dialog()
 	form.setupUi(d)
-	
+
 	form.pushKeyQ.keyPressEvent = types.MethodType( Conf_keyPressEvent, form.pushKeyQ )
 	form.pushKeyA.keyPressEvent = types.MethodType( Conf_keyPressEvent, form.pushKeyA )
 	form.pushKeyQ.setText(KeyToString(config.TTS_KEY_Q))
@@ -348,17 +350,17 @@ def editConf():
 	form.cAutoQ.setChecked(config.automaticQuestions)
 	form.cAutoA.setChecked(config.automaticAnswers)
 	form.cSubprocessing.setChecked(config.subprocessing)
-	
+
 	form.rfilename_plain.setChecked((not config.quote_mp3))
 	form.rfilename_quoted.setChecked(config.quote_mp3)
-	
+
 	QtCore.QObject.connect(form.pushKeyQ, QtCore.SIGNAL("clicked()"), lambda form=form: getKey(form.pushKeyQ))
 	QtCore.QObject.connect(form.pushKeyA, QtCore.SIGNAL("clicked()"), lambda form=form: getKey(form.pushKeyA))
-	
+
 	d.setWindowModality(Qt.WindowModal)
-	
+
 	form.label_version.setText("Version "+ version)
-	
+
 	if not d.exec_():
 		return
 
